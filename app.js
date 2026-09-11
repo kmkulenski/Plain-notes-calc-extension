@@ -38,7 +38,6 @@ const I18N = {
     "button.open": "Отвори",
     "button.print": "Печат",
     "button.export": "Експорт",
-    "button.rename": "Преименувай",
     "button.copy": "Копие",
     "button.clear": "Изчисти",
     "calculator.title": "Калкулатор",
@@ -50,20 +49,19 @@ const I18N = {
     "title.format": "Формат за експорт",
     "title.export": "Експортирай активната бележка",
     "title.newTab": "Нов таб с бележка",
-    "title.rename": "Преименувай активния таб",
     "title.copy": "Дублирай активния таб",
     "title.clear": "Изчисти активната бележка",
     "title.closeCalc": "Затвори калкулатора",
     "title.closeTab": "Изтрий таба",
+    "title.minimize": "Минимизирай панела",
+    "title.restore": "Възстанови панела",
     "meta": "{chars} знака / {lines} реда",
-    "prompt.rename": "Преименувай таба",
     "status.saved": "Запазено локално",
     "status.saving": "Запазване",
     "status.saveFailed": "Грешка при запазване",
     "status.storageReset": "Локалното състояние е нулирано",
     "status.tabLimit": "Достигнат е лимитът от табове",
     "status.newTab": "Новият таб е запазен локално",
-    "status.renamed": "Преименувано локално",
     "status.cleared": "Изчистено локално",
     "status.deleted": "Табът е изтрит",
     "status.lastReset": "Последният таб е изчистен",
@@ -95,7 +93,6 @@ const I18N = {
     "button.open": "Open",
     "button.print": "Print",
     "button.export": "Export",
-    "button.rename": "Rename",
     "button.copy": "Copy",
     "button.clear": "Clear",
     "calculator.title": "Calculator",
@@ -107,20 +104,19 @@ const I18N = {
     "title.format": "Export format",
     "title.export": "Export active note",
     "title.newTab": "New note tab",
-    "title.rename": "Rename active tab",
     "title.copy": "Duplicate active tab",
     "title.clear": "Clear active note",
     "title.closeCalc": "Close calculator",
     "title.closeTab": "Delete tab",
+    "title.minimize": "Minimize panel",
+    "title.restore": "Restore panel",
     "meta": "{chars} chars / {lines} lines",
-    "prompt.rename": "Rename note tab",
     "status.saved": "Saved locally",
     "status.saving": "Saving",
     "status.saveFailed": "Save failed",
     "status.storageReset": "Storage reset",
     "status.tabLimit": "Tab limit reached",
     "status.newTab": "New tab saved locally",
-    "status.renamed": "Renamed locally",
     "status.cleared": "Cleared locally",
     "status.deleted": "Tab deleted",
     "status.lastReset": "Last tab cleared",
@@ -139,13 +135,13 @@ let saveTimer = null;
 let statusTimer = null;
 
 const dom = {
+  appShell: document.querySelector(".app-shell"),
   status: document.getElementById("status"),
   languageSelect: document.getElementById("languageSelect"),
   tabsCount: document.getElementById("tabsCount"),
   tabsList: document.getElementById("tabsList"),
   addTabButton: document.getElementById("addTabButton"),
   tabActionsMenu: document.getElementById("tabActionsMenu"),
-  renameTabButton: document.getElementById("renameTabButton"),
   duplicateTabButton: document.getElementById("duplicateTabButton"),
   clearTabButton: document.getElementById("clearTabButton"),
   noteTitleInput: document.getElementById("noteTitleInput"),
@@ -155,6 +151,7 @@ const dom = {
   exportButton: document.getElementById("exportButton"),
   importButton: document.getElementById("importButton"),
   printButton: document.getElementById("printButton"),
+  minimizeButton: document.getElementById("minimizeButton"),
   fileInput: document.getElementById("fileInput"),
   toggleCalcButton: document.getElementById("toggleCalcButton"),
   closeCalcButton: document.getElementById("closeCalcButton"),
@@ -295,6 +292,8 @@ function applyTranslations() {
   document.querySelectorAll("[data-i18n-aria]").forEach((element) => {
     element.setAttribute("aria-label", translate(element.dataset.i18nAria));
   });
+
+  syncMinimizeButtonLabel();
 }
 
 function setStatus(message, holdMs = 1600) {
@@ -417,20 +416,6 @@ function addTab(title = newNoteTitle(), content = "", extension = "txt") {
   return tab;
 }
 
-function renameActiveTab() {
-  const tab = getActiveTab();
-  const nextTitle = prompt(translate("prompt.rename"), tab.title);
-
-  if (nextTitle === null) {
-    return;
-  }
-
-  tab.title = cleanTitle(nextTitle);
-  tab.updatedAt = Date.now();
-  renderAll();
-  queueSave(translate("status.renamed"));
-}
-
 function duplicateActiveTab() {
   const tab = getActiveTab();
 
@@ -455,6 +440,61 @@ function clearActiveTab() {
 function closeTabActionsMenu() {
   if (dom.tabActionsMenu) {
     dom.tabActionsMenu.open = false;
+  }
+}
+
+function isAppMinimized() {
+  return dom.appShell.classList.contains("is-minimized");
+}
+
+function syncMinimizeButtonLabel() {
+  const isMinimized = isAppMinimized();
+  const label = translate(isMinimized ? "title.restore" : "title.minimize");
+
+  dom.minimizeButton.textContent = isMinimized ? "+" : "-";
+  dom.minimizeButton.title = label;
+  dom.minimizeButton.setAttribute("aria-label", label);
+  dom.minimizeButton.classList.toggle("is-restore", isMinimized);
+}
+
+function setAppMinimized(shouldMinimize) {
+  dom.appShell.classList.toggle("is-minimized", shouldMinimize);
+  syncMinimizeButtonLabel();
+
+  if (!shouldMinimize) {
+    dom.noteContentInput.focus();
+  }
+}
+
+function requestFallbackWindowMinimize() {
+  if (!(globalThis.chrome && chrome.runtime && typeof chrome.runtime.sendMessage === "function")) {
+    return Promise.resolve(false);
+  }
+
+  return new Promise((resolve) => {
+    try {
+      chrome.runtime.sendMessage({ type: "minimizeNotesWindow" }, (response) => {
+        if (chrome.runtime.lastError) {
+          resolve(false);
+          return;
+        }
+
+        resolve(Boolean(response && response.minimized));
+      });
+    } catch (_error) {
+      resolve(false);
+    }
+  });
+}
+
+async function toggleAppMinimized() {
+  const shouldMinimize = !isAppMinimized();
+
+  closeTabActionsMenu();
+  setAppMinimized(shouldMinimize);
+
+  if (shouldMinimize) {
+    await requestFallbackWindowMinimize();
   }
 }
 
@@ -886,10 +926,6 @@ function bindEvents() {
   });
 
   dom.addTabButton.addEventListener("click", () => addTab());
-  dom.renameTabButton.addEventListener("click", () => {
-    closeTabActionsMenu();
-    renameActiveTab();
-  });
   dom.duplicateTabButton.addEventListener("click", () => {
     closeTabActionsMenu();
     duplicateActiveTab();
@@ -904,6 +940,7 @@ function bindEvents() {
   dom.languageSelect.addEventListener("change", handleLanguageChange);
   dom.exportButton.addEventListener("click", exportActiveTab);
   dom.printButton.addEventListener("click", printActiveTab);
+  dom.minimizeButton.addEventListener("click", toggleAppMinimized);
   dom.importButton.addEventListener("click", () => dom.fileInput.click());
   dom.fileInput.addEventListener("change", async () => {
     const file = dom.fileInput.files[0];

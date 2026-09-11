@@ -116,6 +116,22 @@ async function openDockedWindow(tab) {
   }
 }
 
+async function minimizeDockedWindow() {
+  const existingWindowId = await getStoredWindowId();
+
+  if (!existingWindowId) {
+    return false;
+  }
+
+  try {
+    await chrome.windows.update(existingWindowId, { state: "minimized" });
+    return true;
+  } catch (_error) {
+    await clearStoredWindowId();
+    return false;
+  }
+}
+
 async function openNotesSurface(tab) {
   if (await openSidePanel(tab)) {
     return;
@@ -126,6 +142,18 @@ async function openNotesSurface(tab) {
 
 chrome.action.onClicked.addListener((tab) => {
   openNotesSurface(tab);
+});
+
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  if (!message || message.type !== "minimizeNotesWindow") {
+    return false;
+  }
+
+  minimizeDockedWindow().then((minimized) => {
+    sendResponse({ minimized });
+  });
+
+  return true;
 });
 
 chrome.windows.onRemoved.addListener(async (windowId) => {

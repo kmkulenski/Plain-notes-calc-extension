@@ -73,6 +73,19 @@ button:disabled {
   background: var(--surface);
 }
 
+.app-shell.is-minimized {
+  grid-template-rows: 38px 0;
+  height: 38px;
+}
+
+.app-shell.is-minimized .workspace {
+  display: none;
+}
+
+.app-shell.is-minimized .toolbar > :not(.minimize-button) {
+  display: none;
+}
+
 .topbar {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
@@ -144,6 +157,15 @@ button:disabled {
 .primary-button:hover {
   background: #0a5f59;
   border-color: #0a5f59;
+}
+
+.minimize-button {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.minimize-button.is-restore {
+  color: var(--accent);
 }
 
 .format-select,
@@ -327,7 +349,7 @@ button:disabled {
   right: 0;
   z-index: 10;
   display: grid;
-  width: 142px;
+  width: 116px;
   gap: 2px;
   padding: 4px;
   border: 1px solid var(--line);

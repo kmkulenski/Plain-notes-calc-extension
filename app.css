@@ -361,6 +361,10 @@ button:focus {
   padding: 0;
 }
 
+.print-document {
+  display: none;
+}
+
 @media (max-width: 680px) {
   body {
     min-width: 420px;
@@ -391,5 +395,47 @@ button:focus {
     bottom: 0;
     width: min(230px, 60vw);
     z-index: 5;
+  }
+}
+
+@media print {
+  @page {
+    margin: 16mm;
+  }
+
+  html,
+  body {
+    width: auto;
+    height: auto;
+    min-width: 0;
+    min-height: 0;
+    background: #ffffff;
+    color: #000000;
+  }
+
+  .app-shell {
+    display: none;
+  }
+
+  .print-document {
+    display: block;
+    color: #000000;
+    font-family: "Segoe UI", Arial, sans-serif;
+  }
+
+  .print-document h1 {
+    margin: 0 0 12px;
+    font-size: 18pt;
+    font-weight: 700;
+    line-height: 1.25;
+  }
+
+  .print-document pre {
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: "Consolas", "Courier New", monospace;
+    font-size: 11pt;
+    line-height: 1.4;
   }
 }

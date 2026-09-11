@@ -23,6 +23,7 @@
           </select>
           <button type="button" class="icon-button" id="toggleCalcButton" title="Toggle calculator" data-i18n="button.calc" data-i18n-title="title.calc">Calc</button>
           <button type="button" class="icon-button" id="importButton" title="Import text file" data-i18n="button.open" data-i18n-title="title.open">Open</button>
+          <button type="button" class="icon-button" id="printButton" title="Print active note" data-i18n="button.print" data-i18n-title="title.print">Print</button>
           <select id="formatSelect" class="format-select" title="Export format" aria-label="Export format" data-i18n-title="title.format" data-i18n-aria="title.format">
             <option value="txt">.txt</option>
             <option value="md">.md</option>
@@ -89,6 +90,11 @@
         </aside>
       </main>
     </div>
+
+    <section class="print-document" id="printDocument" aria-hidden="true">
+      <h1 id="printTitle"></h1>
+      <pre id="printBody"></pre>
+    </section>
 
     <input id="fileInput" type="file" hidden accept=".txt,.md,.markdown,.js,.py,.html,.htm,.css,.json,.csv,.log,text/*">
     <script src="app.js"></script>

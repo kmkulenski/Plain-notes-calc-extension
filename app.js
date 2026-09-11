@@ -36,6 +36,7 @@ const I18N = {
     "aria.calculatorButtons": "Бутони на калкулатора",
     "button.calc": "Калк",
     "button.open": "Отвори",
+    "button.print": "Печат",
     "button.export": "Експорт",
     "button.rename": "Преименувай",
     "button.copy": "Копие",
@@ -45,6 +46,7 @@ const I18N = {
     "title.language": "Език на интерфейса",
     "title.calc": "Покажи/скрий калкулатора",
     "title.open": "Отвори текстов файл",
+    "title.print": "Принтирай активната бележка",
     "title.format": "Формат за експорт",
     "title.export": "Експортирай активната бележка",
     "title.newTab": "Нов таб с бележка",
@@ -70,7 +72,8 @@ const I18N = {
     "status.importSkipped": "Няма свободен таб за импорт",
     "status.importFailed": "Грешка при импорт",
     "status.formatSaved": "Форматът е запазен локално",
-    "status.languageSaved": "Езикът е запазен"
+    "status.languageSaved": "Езикът е запазен",
+    "status.printReady": "Готово за печат"
   },
   en: {
     "app.title": "Plain Tabs Notes",
@@ -90,6 +93,7 @@ const I18N = {
     "aria.calculatorButtons": "Calculator buttons",
     "button.calc": "Calc",
     "button.open": "Open",
+    "button.print": "Print",
     "button.export": "Export",
     "button.rename": "Rename",
     "button.copy": "Copy",
@@ -99,6 +103,7 @@ const I18N = {
     "title.language": "Interface language",
     "title.calc": "Toggle calculator",
     "title.open": "Import text file",
+    "title.print": "Print active note",
     "title.format": "Export format",
     "title.export": "Export active note",
     "title.newTab": "New note tab",
@@ -124,7 +129,8 @@ const I18N = {
     "status.importSkipped": "No free tab for import",
     "status.importFailed": "Import failed",
     "status.formatSaved": "Format saved locally",
-    "status.languageSaved": "Language saved"
+    "status.languageSaved": "Language saved",
+    "status.printReady": "Ready to print"
   }
 };
 
@@ -147,11 +153,15 @@ const dom = {
   formatSelect: document.getElementById("formatSelect"),
   exportButton: document.getElementById("exportButton"),
   importButton: document.getElementById("importButton"),
+  printButton: document.getElementById("printButton"),
   fileInput: document.getElementById("fileInput"),
   toggleCalcButton: document.getElementById("toggleCalcButton"),
   closeCalcButton: document.getElementById("closeCalcButton"),
   calculatorPane: document.getElementById("calculatorPane"),
-  calculatorDisplay: document.getElementById("calculatorDisplay")
+  calculatorDisplay: document.getElementById("calculatorDisplay"),
+  printDocument: document.getElementById("printDocument"),
+  printTitle: document.getElementById("printTitle"),
+  printBody: document.getElementById("printBody")
 };
 
 const calculator = {
@@ -509,6 +519,27 @@ function exportActiveTab() {
   queueSave(translate("status.exported"));
 }
 
+function preparePrintDocument() {
+  const tab = getActiveTab();
+  dom.printTitle.textContent = tab.title || translate("defaultTitle");
+  dom.printBody.textContent = tab.content || "";
+  dom.printDocument.setAttribute("aria-hidden", "false");
+}
+
+function printActiveTab() {
+  preparePrintDocument();
+  setStatus(translate("status.printReady"), 1800);
+
+  requestAnimationFrame(() => {
+    window.print();
+  });
+}
+
+function cleanupPrintDocument() {
+  dom.printDocument.setAttribute("aria-hidden", "true");
+}
+
+
 function inferExtension(fileName) {
   const match = /\.([a-z0-9]+)$/i.exec(fileName || "");
   return normalizeExtension(match ? match[1] : "txt");
@@ -744,6 +775,11 @@ function handleKeyboardShortcuts(event) {
     event.preventDefault();
     dom.fileInput.click();
   }
+
+  if (key === "p") {
+    event.preventDefault();
+    printActiveTab();
+  }
 }
 
 function bindEvents() {
@@ -771,6 +807,7 @@ function bindEvents() {
   dom.formatSelect.addEventListener("change", handleFormatChange);
   dom.languageSelect.addEventListener("change", handleLanguageChange);
   dom.exportButton.addEventListener("click", exportActiveTab);
+  dom.printButton.addEventListener("click", printActiveTab);
   dom.importButton.addEventListener("click", () => dom.fileInput.click());
   dom.fileInput.addEventListener("change", async () => {
     const file = dom.fileInput.files[0];
@@ -794,6 +831,8 @@ function bindEvents() {
   });
 
   document.addEventListener("keydown", handleKeyboardShortcuts);
+  window.addEventListener("beforeprint", preparePrintDocument);
+  window.addEventListener("afterprint", cleanupPrintDocument);
 }
 
 async function init() {

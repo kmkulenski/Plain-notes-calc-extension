@@ -15,6 +15,7 @@ Core features:
 - Auto-saves note state into `chrome.storage.local` without creating disk files.
 - Exports the active note as `.txt`, `.md`, `.js`, `.py`, or `.html`.
 - Imports text-like files into a new note tab when capacity allows.
+- Prints the active note through the standard Chrome/system print dialog.
 - Includes a small isolated calculator panel for quick arithmetic.
 
 Tech stack:
@@ -88,6 +89,7 @@ Key files:
 - Do not mix calculator state into the note storage schema. The calculator is intentionally isolated UI state.
 - Keep state.language in the local storage schema; it controls only interface labels and must not transform user note content.
 - The per-tab x delete action and active-note clear action are intentionally immediate. Do not reintroduce browser confirmation popups unless the product decision changes.
+- Printing intentionally uses `window.print()` and `@media print`. Do not add printer-driver integrations, native messaging, or printer permissions unless the project scope explicitly changes.
 - Do not silently remove the 10-tab cap. If more tabs are needed, review `chrome.storage.local` quota behavior and large-file performance first.
 - Do not replace export/download with direct file writes without documenting File System Access API permissions, persistence behavior, browser compatibility, and user prompts.
 - Do not introduce external network calls, analytics, CDNs, remote fonts, or third-party scripts. The tool should work offline.
@@ -117,6 +119,7 @@ Manual test checklist:
 - Switch the interface between Bulgarian and English and confirm the selected language persists.
 - Rename, duplicate, clear, and delete note tabs with the small per-tab x control.
 - Confirm clearing a note does not open a browser confirmation popup.
+- Print the active note and confirm the preview contains only the note title and plain text content, not the full app interface.
 - Import a `.txt` or `.md` file and confirm it opens as a note tab.
 - Export notes as `.txt`, `.md`, `.js`, `.py`, and `.html`.
 - Toggle the calculator and test basic operations: add, subtract, multiply, divide, decimal input, clear, and backspace.

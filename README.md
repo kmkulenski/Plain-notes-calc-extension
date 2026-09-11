@@ -2,11 +2,12 @@
 
 ## 1. Project Overview & Tech Stack
 
-Plain Tabs Notes Extension is a lightweight Chrome Manifest V3 extension for fast plain-text note taking in a small dedicated window. It behaves like a minimal Notepad++-style scratchpad: multiple note tabs, automatic local persistence, simple text import, and export to common text/code file extensions.
+Plain Tabs Notes Extension is a lightweight Chrome Manifest V3 extension for fast plain-text note taking in a persistent right-side Chrome side panel. It behaves like a minimal Notepad++-style scratchpad: multiple note tabs, automatic local persistence, simple text import, and export to common text/code file extensions.
 
 Core features:
 
-- Opens from the extension icon into a compact resizable Chrome popup window.
+- Opens from the extension icon into Chrome's right-side side panel when available.
+- Falls back to a compact docked popup window on the right side of the current Chrome window when the Side Panel API is unavailable.
 - Uses Bulgarian as the default interface language and persists an optional English UI setting.
 - Supports up to 10 note tabs to keep local storage predictable.
 - Deletes tabs from a small per-tab x control without a confirmation popup.
@@ -72,7 +73,7 @@ plain-tabs-notes-extension/
 Key files:
 
 - `manifest.json` defines the Manifest V3 extension, permissions, icons, and background service worker.
-- `background.js` handles the extension icon click and opens or focuses the compact notes window.
+- `background.js` handles the extension icon click, opens the right-side Chrome side panel, and falls back to a docked popup window when needed.
 - `app.html` contains the app shell, note editor, tab controls, import/export controls, and calculator markup.
 - `app.css` contains all layout and visual styling.
 - `app.js` owns note state, auto-save, import/export, tab management, keyboard shortcuts, and calculator behavior.
@@ -84,7 +85,9 @@ Key files:
 > [!WARNING]
 > Critical for developers and AI agents: keep the extension small, local, and dependency-free unless the project scope is explicitly changed.
 
-- Do not add `default_popup` to `manifest.json` unless you intentionally remove the dedicated window behavior. Chrome action popups close when focus leaves them, which is bad for note taking.
+- Do not add `default_popup` to `manifest.json` unless you intentionally remove side-panel behavior. Chrome action popups close when focus leaves them, which is bad for note taking.
+- Keep `side_panel.default_path` pointed at `app.html` unless the app shell is split intentionally.
+- The fallback popup window cannot be made always-on-top by standard Chrome extension APIs. Use the side panel for persistent right-side behavior inside Chrome.
 - Do not use `eval`, `new Function`, inline scripts, or dynamic code execution. Manifest V3 Content Security Policy blocks unsafe script execution and Chrome Web Store review may reject it.
 - Do not mix calculator state into the note storage schema. The calculator is intentionally isolated UI state.
 - Keep state.language in the local storage schema; it controls only interface labels and must not transform user note content.
@@ -113,7 +116,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\generate-icons.ps1
 Manual test checklist:
 
 - Load the extension through `chrome://extensions`.
-- Click the extension icon and confirm a compact window opens.
+- Click the extension icon and confirm the right-side Chrome side panel opens.
+- If the browser does not support side panels, confirm a compact fallback window opens on the right side of the current Chrome window.
 - Create notes until the 10-tab limit is reached.
 - Type in multiple tabs, close the window, reopen it, and confirm notes persist.
 - Switch the interface between Bulgarian and English and confirm the selected language persists.

@@ -4,7 +4,7 @@
   "description": "Fast plain-text notes with tabs, local auto-save, export, import, and a small calculator.",
   "version": "0.1.0",
   "offline_enabled": true,
-  "permissions": ["storage"],
+  "permissions": ["storage", "sidePanel"],
   "action": {
     "default_title": "Open Plain Tabs Notes",
     "default_icon": {
@@ -16,6 +16,9 @@
   },
   "background": {
     "service_worker": "background.js"
+  },
+  "side_panel": {
+    "default_path": "app.html"
   },
   "icons": {
     "16": "icons/icon16.png",

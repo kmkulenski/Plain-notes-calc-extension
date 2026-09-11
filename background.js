@@ -1,11 +1,8 @@
 const APP_WINDOW_ID_KEY = "plainTabsNotesWindowId";
 const APP_URL = "app.html";
-const APP_WINDOW = {
-  type: "popup",
-  width: 760,
-  height: 560,
-  focused: true
-};
+const APP_WINDOW_WIDTH = 460;
+const APP_WINDOW_MIN_HEIGHT = 560;
+const APP_WINDOW_MARGIN = 12;
 
 let fallbackWindowId = null;
 
@@ -34,9 +31,63 @@ async function clearStoredWindowId() {
   }
 }
 
-async function focusExistingWindow(windowId) {
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(value, max));
+}
+
+async function getSourceWindow(tab) {
+  if (tab && Number.isInteger(tab.windowId)) {
+    try {
+      return await chrome.windows.get(tab.windowId);
+    } catch (_error) {
+      // Fall back to the last focused normal window below.
+    }
+  }
+
   try {
-    await chrome.windows.update(windowId, { focused: true });
+    return await chrome.windows.getLastFocused({ windowTypes: ["normal"] });
+  } catch (_error) {
+    return null;
+  }
+}
+
+async function openSidePanel(tab) {
+  if (!chrome.sidePanel || typeof chrome.sidePanel.open !== "function") {
+    return false;
+  }
+
+  if (!tab || !Number.isInteger(tab.windowId)) {
+    return false;
+  }
+
+  try {
+    await chrome.sidePanel.open({ windowId: tab.windowId });
+    return true;
+  } catch (_error) {
+    return false;
+  }
+}
+
+function getDockedBounds(sourceWindow) {
+  const screenLeft = Number.isFinite(sourceWindow && sourceWindow.left) ? sourceWindow.left : 0;
+  const screenTop = Number.isFinite(sourceWindow && sourceWindow.top) ? sourceWindow.top : 0;
+  const screenWidth = Number.isFinite(sourceWindow && sourceWindow.width) ? sourceWindow.width : 1200;
+  const screenHeight = Number.isFinite(sourceWindow && sourceWindow.height) ? sourceWindow.height : 800;
+  const maxHeight = Math.max(APP_WINDOW_MIN_HEIGHT, screenHeight - (APP_WINDOW_MARGIN * 2));
+  const height = clamp(screenHeight - (APP_WINDOW_MARGIN * 2), APP_WINDOW_MIN_HEIGHT, maxHeight);
+
+  return {
+    width: APP_WINDOW_WIDTH,
+    height,
+    left: screenLeft + Math.max(APP_WINDOW_MARGIN, screenWidth - APP_WINDOW_WIDTH - APP_WINDOW_MARGIN),
+    top: screenTop + APP_WINDOW_MARGIN
+  };
+}
+
+async function focusExistingWindow(windowId, bounds) {
+  try {
+    await chrome.windows.update(windowId, { state: "normal" });
+    await chrome.windows.update(windowId, { ...bounds, focused: true });
     return true;
   } catch (_error) {
     await clearStoredWindowId();
@@ -44,15 +95,19 @@ async function focusExistingWindow(windowId) {
   }
 }
 
-async function openNotesWindow() {
+async function openDockedWindow(tab) {
+  const sourceWindow = await getSourceWindow(tab);
+  const bounds = getDockedBounds(sourceWindow);
   const existingWindowId = await getStoredWindowId();
 
-  if (existingWindowId && await focusExistingWindow(existingWindowId)) {
+  if (existingWindowId && await focusExistingWindow(existingWindowId, bounds)) {
     return;
   }
 
   const createdWindow = await chrome.windows.create({
-    ...APP_WINDOW,
+    type: "popup",
+    ...bounds,
+    focused: true,
     url: chrome.runtime.getURL(APP_URL)
   });
 
@@ -61,8 +116,16 @@ async function openNotesWindow() {
   }
 }
 
-chrome.action.onClicked.addListener(() => {
-  openNotesWindow();
+async function openNotesSurface(tab) {
+  if (await openSidePanel(tab)) {
+    return;
+  }
+
+  await openDockedWindow(tab);
+}
+
+chrome.action.onClicked.addListener((tab) => {
+  openNotesSurface(tab);
 });
 
 chrome.windows.onRemoved.addListener(async (windowId) => {

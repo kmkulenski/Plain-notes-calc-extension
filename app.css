@@ -240,16 +240,20 @@ button:disabled {
 
 .tab-actions {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 6px;
   padding: 8px;
   border-top: 1px solid var(--border);
 }
 
 .tab-actions button {
+  width: 100%;
   min-width: 0;
   padding: 0 6px;
   font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .editor-pane {

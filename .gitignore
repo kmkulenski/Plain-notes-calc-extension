@@ -1,0 +1,12 @@
+.env
+.env.*
+!.env.example
+secrets.local/
+*.local
+node_modules/
+dist/
+build/
+*.zip
+*.crx
+.DS_Store
+Thumbs.db

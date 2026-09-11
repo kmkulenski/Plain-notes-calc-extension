@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="bg">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Plain Tabs Notes</title>
+    <link rel="stylesheet" href="app.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand" aria-label="Plain Tabs Notes" data-i18n-aria="brand.name">
+          <img src="icons/icon32.png" alt="" width="24" height="24">
+          <span data-i18n="brand.name">Plain Tabs Notes</span>
+        </div>
+
+        <div class="status" id="status" role="status" aria-live="polite">Loading</div>
+
+        <div class="toolbar" aria-label="Note tools" data-i18n-aria="aria.noteTools">
+          <select id="languageSelect" class="language-select" title="Interface language" aria-label="Interface language" data-i18n-title="title.language" data-i18n-aria="title.language">
+            <option value="bg">BG</option>
+            <option value="en">EN</option>
+          </select>
+          <button type="button" class="icon-button" id="toggleCalcButton" title="Toggle calculator" data-i18n="button.calc" data-i18n-title="title.calc">Calc</button>
+          <button type="button" class="icon-button" id="importButton" title="Import text file" data-i18n="button.open" data-i18n-title="title.open">Open</button>
+          <select id="formatSelect" class="format-select" title="Export format" aria-label="Export format" data-i18n-title="title.format" data-i18n-aria="title.format">
+            <option value="txt">.txt</option>
+            <option value="md">.md</option>
+            <option value="js">.js</option>
+            <option value="py">.py</option>
+            <option value="html">.html</option>
+          </select>
+          <button type="button" class="primary-button" id="exportButton" title="Export active note" data-i18n="button.export" data-i18n-title="title.export">Export</button>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <aside class="tabs-pane" aria-label="Notes" data-i18n-aria="aria.notes">
+          <div class="tabs-header">
+            <span id="tabsCount">0/10</span>
+            <button type="button" class="icon-button small" id="addTabButton" title="New note tab" data-i18n-title="title.newTab">+</button>
+          </div>
+
+          <div class="tabs-list" id="tabsList" role="tablist" aria-label="Note tabs" data-i18n-aria="aria.noteTabs"></div>
+
+          <div class="tab-actions" aria-label="Tab actions" data-i18n-aria="aria.tabActions">
+            <button type="button" id="renameTabButton" title="Rename active tab" data-i18n="button.rename" data-i18n-title="title.rename">Rename</button>
+            <button type="button" id="duplicateTabButton" title="Duplicate active tab" data-i18n="button.copy" data-i18n-title="title.copy">Copy</button>
+            <button type="button" id="clearTabButton" title="Clear active note" data-i18n="button.clear" data-i18n-title="title.clear">Clear</button>
+          </div>
+        </aside>
+
+        <section class="editor-pane" aria-label="Active note" data-i18n-aria="aria.activeNote">
+          <div class="editor-header">
+            <input id="noteTitleInput" class="title-input" type="text" maxlength="80" autocomplete="off" spellcheck="false" aria-label="Note title" data-i18n-aria="aria.noteTitle">
+            <span id="noteMeta" class="note-meta">0 chars / 0 lines</span>
+          </div>
+          <textarea id="noteContentInput" class="note-content" spellcheck="false" aria-label="Note content" data-i18n-aria="aria.noteContent"></textarea>
+        </section>
+
+        <aside class="calculator-pane is-hidden" id="calculatorPane" aria-label="Calculator" data-i18n-aria="aria.calculator">
+          <div class="calculator-header">
+            <span data-i18n="calculator.title">Calculator</span>
+            <button type="button" class="icon-button small" id="closeCalcButton" title="Close calculator" data-i18n-title="title.closeCalc">x</button>
+          </div>
+          <input id="calculatorDisplay" class="calculator-display" type="text" readonly value="0" aria-label="Calculator display" data-i18n-aria="aria.calculatorDisplay">
+          <div class="calculator-grid" aria-label="Calculator buttons" data-i18n-aria="aria.calculatorButtons">
+            <button type="button" data-calc="clear">C</button>
+            <button type="button" data-calc="back" data-i18n="calculator.back">Back</button>
+            <button type="button" data-calc="percent">%</button>
+            <button type="button" data-calc="divide">/</button>
+            <button type="button" data-calc="7">7</button>
+            <button type="button" data-calc="8">8</button>
+            <button type="button" data-calc="9">9</button>
+            <button type="button" data-calc="multiply">*</button>
+            <button type="button" data-calc="4">4</button>
+            <button type="button" data-calc="5">5</button>
+            <button type="button" data-calc="6">6</button>
+            <button type="button" data-calc="subtract">-</button>
+            <button type="button" data-calc="1">1</button>
+            <button type="button" data-calc="2">2</button>
+            <button type="button" data-calc="3">3</button>
+            <button type="button" data-calc="add">+</button>
+            <button type="button" data-calc="0">0</button>
+            <button type="button" data-calc="decimal">.</button>
+            <button type="button" data-calc="sign">+/-</button>
+            <button type="button" data-calc="equals">=</button>
+          </div>
+        </aside>
+      </main>
+    </div>
+
+    <input id="fileInput" type="file" hidden accept=".txt,.md,.markdown,.js,.py,.html,.htm,.css,.json,.csv,.log,text/*">
+    <script src="app.js"></script>
+  </body>
+</html>

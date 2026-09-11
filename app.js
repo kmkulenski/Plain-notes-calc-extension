@@ -53,8 +53,7 @@ const I18N = {
     "title.clear": "Изчисти активната бележка",
     "title.closeCalc": "Затвори калкулатора",
     "title.closeTab": "Изтрий таба",
-    "title.minimize": "Минимизирай панела",
-    "title.restore": "Възстанови панела",
+    "title.closePanel": "Затвори панела",
     "meta": "{chars} знака / {lines} реда",
     "status.saved": "Запазено локално",
     "status.saving": "Запазване",
@@ -108,8 +107,7 @@ const I18N = {
     "title.clear": "Clear active note",
     "title.closeCalc": "Close calculator",
     "title.closeTab": "Delete tab",
-    "title.minimize": "Minimize panel",
-    "title.restore": "Restore panel",
+    "title.closePanel": "Close panel",
     "meta": "{chars} chars / {lines} lines",
     "status.saved": "Saved locally",
     "status.saving": "Saving",
@@ -135,7 +133,6 @@ let saveTimer = null;
 let statusTimer = null;
 
 const dom = {
-  appShell: document.querySelector(".app-shell"),
   status: document.getElementById("status"),
   languageSelect: document.getElementById("languageSelect"),
   tabsCount: document.getElementById("tabsCount"),
@@ -293,7 +290,9 @@ function applyTranslations() {
     element.setAttribute("aria-label", translate(element.dataset.i18nAria));
   });
 
-  syncMinimizeButtonLabel();
+  const closePanelLabel = translate("title.closePanel");
+  dom.minimizeButton.title = closePanelLabel;
+  dom.minimizeButton.setAttribute("aria-label", closePanelLabel);
 }
 
 function setStatus(message, holdMs = 1600) {
@@ -443,58 +442,22 @@ function closeTabActionsMenu() {
   }
 }
 
-function isAppMinimized() {
-  return dom.appShell.classList.contains("is-minimized");
-}
+function closeSidePanel() {
+  closeTabActionsMenu();
 
-function syncMinimizeButtonLabel() {
-  const isMinimized = isAppMinimized();
-  const label = translate(isMinimized ? "title.restore" : "title.minimize");
-
-  dom.minimizeButton.textContent = isMinimized ? "+" : "-";
-  dom.minimizeButton.title = label;
-  dom.minimizeButton.setAttribute("aria-label", label);
-  dom.minimizeButton.classList.toggle("is-restore", isMinimized);
-}
-
-function setAppMinimized(shouldMinimize) {
-  dom.appShell.classList.toggle("is-minimized", shouldMinimize);
-  syncMinimizeButtonLabel();
-
-  if (!shouldMinimize) {
-    dom.noteContentInput.focus();
-  }
-}
-
-function requestFallbackWindowMinimize() {
-  if (!(globalThis.chrome && chrome.runtime && typeof chrome.runtime.sendMessage === "function")) {
-    return Promise.resolve(false);
-  }
-
-  return new Promise((resolve) => {
+  if (globalThis.chrome && chrome.runtime && typeof chrome.runtime.sendMessage === "function") {
     try {
-      chrome.runtime.sendMessage({ type: "minimizeNotesWindow" }, (response) => {
+      chrome.runtime.sendMessage({ type: "closeNotesWindow" }, () => {
         if (chrome.runtime.lastError) {
-          resolve(false);
-          return;
+          // Side panel or no fallback window — close the page directly.
+          window.close();
         }
-
-        resolve(Boolean(response && response.minimized));
       });
     } catch (_error) {
-      resolve(false);
+      window.close();
     }
-  });
-}
-
-async function toggleAppMinimized() {
-  const shouldMinimize = !isAppMinimized();
-
-  closeTabActionsMenu();
-  setAppMinimized(shouldMinimize);
-
-  if (shouldMinimize) {
-    await requestFallbackWindowMinimize();
+  } else {
+    window.close();
   }
 }
 
@@ -940,7 +903,7 @@ function bindEvents() {
   dom.languageSelect.addEventListener("change", handleLanguageChange);
   dom.exportButton.addEventListener("click", exportActiveTab);
   dom.printButton.addEventListener("click", printActiveTab);
-  dom.minimizeButton.addEventListener("click", toggleAppMinimized);
+  dom.minimizeButton.addEventListener("click", closeSidePanel);
   dom.importButton.addEventListener("click", () => dom.fileInput.click());
   dom.fileInput.addEventListener("change", async () => {
     const file = dom.fileInput.files[0];

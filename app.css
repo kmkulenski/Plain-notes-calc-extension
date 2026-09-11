@@ -73,18 +73,6 @@ button:disabled {
   background: var(--surface);
 }
 
-.app-shell.is-minimized {
-  grid-template-rows: 38px 0;
-  height: 38px;
-}
-
-.app-shell.is-minimized .workspace {
-  display: none;
-}
-
-.app-shell.is-minimized .toolbar > :not(.minimize-button) {
-  display: none;
-}
 
 .topbar {
   display: grid;
@@ -159,13 +147,14 @@ button:disabled {
   border-color: #0a5f59;
 }
 
-.minimize-button {
+.close-panel-button {
   color: var(--muted);
   font-weight: 700;
 }
 
-.minimize-button.is-restore {
-  color: var(--accent);
+.close-panel-button:hover {
+  color: var(--danger);
+  background: var(--danger-soft);
 }
 
 .format-select,

@@ -116,7 +116,7 @@ async function openDockedWindow(tab) {
   }
 }
 
-async function minimizeDockedWindow() {
+async function closeDockedWindow() {
   const existingWindowId = await getStoredWindowId();
 
   if (!existingWindowId) {
@@ -124,7 +124,8 @@ async function minimizeDockedWindow() {
   }
 
   try {
-    await chrome.windows.update(existingWindowId, { state: "minimized" });
+    await chrome.windows.remove(existingWindowId);
+    await clearStoredWindowId();
     return true;
   } catch (_error) {
     await clearStoredWindowId();
@@ -145,12 +146,12 @@ chrome.action.onClicked.addListener((tab) => {
 });
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-  if (!message || message.type !== "minimizeNotesWindow") {
+  if (!message || message.type !== "closeNotesWindow") {
     return false;
   }
 
-  minimizeDockedWindow().then((minimized) => {
-    sendResponse({ minimized });
+  closeDockedWindow().then((closed) => {
+    sendResponse({ closed });
   });
 
   return true;

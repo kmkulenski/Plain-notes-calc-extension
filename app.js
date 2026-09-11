@@ -144,6 +144,7 @@ const dom = {
   tabsCount: document.getElementById("tabsCount"),
   tabsList: document.getElementById("tabsList"),
   addTabButton: document.getElementById("addTabButton"),
+  tabActionsMenu: document.getElementById("tabActionsMenu"),
   renameTabButton: document.getElementById("renameTabButton"),
   duplicateTabButton: document.getElementById("duplicateTabButton"),
   clearTabButton: document.getElementById("clearTabButton"),
@@ -449,6 +450,12 @@ function clearActiveTab() {
   renderMeta();
   queueSave(translate("status.cleared"));
   dom.noteContentInput.focus();
+}
+
+function closeTabActionsMenu() {
+  if (dom.tabActionsMenu) {
+    dom.tabActionsMenu.open = false;
+  }
 }
 
 function resetSingleTab(tab) {
@@ -848,6 +855,16 @@ function handleKeyboardShortcuts(event) {
   }
 }
 
+function handleTabActionsMenuEscape(event) {
+  if (event.key !== "Escape" || !dom.tabActionsMenu || !dom.tabActionsMenu.open) {
+    return;
+  }
+
+  event.preventDefault();
+  event.stopImmediatePropagation();
+  closeTabActionsMenu();
+}
+
 function bindEvents() {
   dom.tabsList.addEventListener("click", (event) => {
     const closeButton = event.target.closest("[data-close-tab-id]");
@@ -865,9 +882,18 @@ function bindEvents() {
   });
 
   dom.addTabButton.addEventListener("click", () => addTab());
-  dom.renameTabButton.addEventListener("click", renameActiveTab);
-  dom.duplicateTabButton.addEventListener("click", duplicateActiveTab);
-  dom.clearTabButton.addEventListener("click", clearActiveTab);
+  dom.renameTabButton.addEventListener("click", () => {
+    closeTabActionsMenu();
+    renameActiveTab();
+  });
+  dom.duplicateTabButton.addEventListener("click", () => {
+    closeTabActionsMenu();
+    duplicateActiveTab();
+  });
+  dom.clearTabButton.addEventListener("click", () => {
+    closeTabActionsMenu();
+    clearActiveTab();
+  });
   dom.noteTitleInput.addEventListener("input", handleTitleInput);
   dom.noteContentInput.addEventListener("input", handleEditorInput);
   dom.formatSelect.addEventListener("change", handleFormatChange);
@@ -896,6 +922,13 @@ function bindEvents() {
     }
   });
 
+  document.addEventListener("click", (event) => {
+    if (dom.tabActionsMenu && dom.tabActionsMenu.open && !dom.tabActionsMenu.contains(event.target)) {
+      closeTabActionsMenu();
+    }
+  });
+
+  document.addEventListener("keydown", handleTabActionsMenuEscape);
   document.addEventListener("keydown", handleKeyboardShortcuts);
   document.addEventListener("keydown", handleCalculatorKeyboard);
   window.addEventListener("beforeprint", preparePrintDocument);

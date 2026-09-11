@@ -11,6 +11,7 @@ Core features:
 - Uses Bulgarian as the default interface language and persists an optional English UI setting.
 - Supports up to 10 note tabs to keep local storage predictable.
 - Uses a thin horizontal tab strip above the editor to preserve writing space in the side panel.
+- Uses a minimal icon-first interface with quiet borders, compact controls, and status/meta information in the editor footer.
 - Deletes tabs from a small per-tab x control without a confirmation popup.
 - Clears the active note immediately without a confirmation popup.
 - Uses a plain `<textarea>` editor with no rich text formatting and no syntax highlighting.
@@ -75,8 +76,8 @@ Key files:
 
 - `manifest.json` defines the Manifest V3 extension, permissions, icons, and background service worker.
 - `background.js` handles the extension icon click, opens the right-side Chrome side panel, and falls back to a docked popup window when needed.
-- `app.html` contains the app shell, horizontal note tabs, note editor, import/export controls, and calculator markup.
-- `app.css` contains all layout and visual styling.
+- `app.html` contains the app shell, horizontal note tabs, note editor, compact action menu, import/export controls, and calculator markup.
+- `app.css` contains the minimal side-panel layout and visual styling.
 - `app.js` owns note state, auto-save, import/export, tab management, keyboard shortcuts, and calculator behavior.
 - `icons/icon.svg` is the source icon artwork.
 - `scripts/generate-icons.ps1` regenerates PNG icon sizes used by Chrome.
@@ -94,6 +95,8 @@ Key files:
 - Keep state.language in the local storage schema; it controls only interface labels and must not transform user note content.
 - The per-tab x delete action and active-note clear action are intentionally immediate. Do not reintroduce browser confirmation popups unless the product decision changes.
 - Keep the note tabs horizontal and compact. The side panel is width-limited, so reintroducing a left tab column significantly reduces the editor area.
+- Keep toolbar commands icon-first and preserve their translated `title` and `aria-label` attributes. Visible toolbar text quickly consumes side-panel width.
+- Keep rename, duplicate, and clear inside the `tabActionsMenu` details menu unless the side panel layout is redesigned.
 - Calculator keyboard handling must not intercept typing while focus is inside note content, note title, selects, inputs, or contenteditable elements.
 - Printing intentionally uses `window.print()` and `@media print`. Do not add printer-driver integrations, native messaging, or printer permissions unless the project scope explicitly changes.
 - Do not silently remove the 10-tab cap. If more tabs are needed, review `chrome.storage.local` quota behavior and large-file performance first.
@@ -125,6 +128,7 @@ Manual test checklist:
 - Type in multiple tabs, close the window, reopen it, and confirm notes persist.
 - Switch the interface between Bulgarian and English and confirm the selected language persists.
 - Rename, duplicate, clear, and delete note tabs with the small per-tab x control.
+- Open the `...` tab actions menu and confirm rename, duplicate, and clear still work.
 - Confirm clearing a note does not open a browser confirmation popup.
 - Print the active note and confirm the preview contains only the note title and plain text content, not the full app interface.
 - Import a `.txt` or `.md` file and confirm it opens as a note tab.

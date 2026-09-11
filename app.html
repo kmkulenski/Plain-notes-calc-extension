@@ -11,19 +11,17 @@
       <header class="topbar">
         <div class="brand" aria-label="Plain Tabs Notes" data-i18n-aria="brand.name">
           <img src="icons/icon32.png" alt="" width="24" height="24">
-          <span data-i18n="brand.name">Plain Tabs Notes</span>
+          <span class="brand-text" data-i18n="brand.name">Plain Tabs Notes</span>
         </div>
 
-        <div class="status" id="status" role="status" aria-live="polite">Loading</div>
-
         <div class="toolbar" aria-label="Note tools" data-i18n-aria="aria.noteTools">
+          <button type="button" class="icon-button tool-button" id="toggleCalcButton" title="Toggle calculator" aria-label="Toggle calculator" data-i18n-title="title.calc" data-i18n-aria="title.calc">123</button>
+          <button type="button" class="icon-button tool-button" id="importButton" title="Import text file" aria-label="Import text file" data-i18n-title="title.open" data-i18n-aria="title.open">&#8593;</button>
+          <button type="button" class="icon-button tool-button" id="printButton" title="Print active note" aria-label="Print active note" data-i18n-title="title.print" data-i18n-aria="title.print">&#9113;</button>
           <select id="languageSelect" class="language-select" title="Interface language" aria-label="Interface language" data-i18n-title="title.language" data-i18n-aria="title.language">
             <option value="bg">BG</option>
             <option value="en">EN</option>
           </select>
-          <button type="button" class="icon-button" id="toggleCalcButton" title="Toggle calculator" data-i18n="button.calc" data-i18n-title="title.calc">Calc</button>
-          <button type="button" class="icon-button" id="importButton" title="Import text file" data-i18n="button.open" data-i18n-title="title.open">Open</button>
-          <button type="button" class="icon-button" id="printButton" title="Print active note" data-i18n="button.print" data-i18n-title="title.print">Print</button>
           <select id="formatSelect" class="format-select" title="Export format" aria-label="Export format" data-i18n-title="title.format" data-i18n-aria="title.format">
             <option value="txt">.txt</option>
             <option value="md">.md</option>
@@ -31,7 +29,7 @@
             <option value="py">.py</option>
             <option value="html">.html</option>
           </select>
-          <button type="button" class="primary-button" id="exportButton" title="Export active note" data-i18n="button.export" data-i18n-title="title.export">Export</button>
+          <button type="button" class="icon-button primary-button" id="exportButton" title="Export active note" aria-label="Export active note" data-i18n-title="title.export" data-i18n-aria="title.export">&#8595;</button>
         </div>
       </header>
 
@@ -49,14 +47,20 @@
           <section class="editor-pane" aria-label="Active note" data-i18n-aria="aria.activeNote">
             <div class="editor-header">
               <input id="noteTitleInput" class="title-input" type="text" maxlength="80" autocomplete="off" spellcheck="false" aria-label="Note title" data-i18n-aria="aria.noteTitle">
-              <span id="noteMeta" class="note-meta">0 chars / 0 lines</span>
-              <div class="tab-actions" aria-label="Tab actions" data-i18n-aria="aria.tabActions">
-                <button type="button" id="renameTabButton" title="Rename active tab" data-i18n="button.rename" data-i18n-title="title.rename">Rename</button>
-                <button type="button" id="duplicateTabButton" title="Duplicate active tab" data-i18n="button.copy" data-i18n-title="title.copy">Copy</button>
-                <button type="button" id="clearTabButton" title="Clear active note" data-i18n="button.clear" data-i18n-title="title.clear">Clear</button>
-              </div>
+              <details class="tab-menu" id="tabActionsMenu">
+                <summary class="icon-button small tab-menu-trigger" title="Tab actions" aria-label="Tab actions" data-i18n-title="aria.tabActions" data-i18n-aria="aria.tabActions">&#8942;</summary>
+                <div class="tab-actions" aria-label="Tab actions" data-i18n-aria="aria.tabActions">
+                  <button type="button" id="renameTabButton" title="Rename active tab" data-i18n="button.rename" data-i18n-title="title.rename">Rename</button>
+                  <button type="button" id="duplicateTabButton" title="Duplicate active tab" data-i18n="button.copy" data-i18n-title="title.copy">Copy</button>
+                  <button type="button" id="clearTabButton" title="Clear active note" data-i18n="button.clear" data-i18n-title="title.clear">Clear</button>
+                </div>
+              </details>
             </div>
             <textarea id="noteContentInput" class="note-content" spellcheck="false" aria-label="Note content" data-i18n-aria="aria.noteContent"></textarea>
+            <footer class="editor-footer">
+              <div class="status" id="status" role="status" aria-live="polite">Loading</div>
+              <span id="noteMeta" class="note-meta">0 chars / 0 lines</span>
+            </footer>
           </section>
         </section>
 
@@ -68,7 +72,7 @@
           <input id="calculatorDisplay" class="calculator-display" type="text" readonly value="0" aria-label="Calculator display" data-i18n-aria="aria.calculatorDisplay">
           <div class="calculator-grid" aria-label="Calculator buttons" data-i18n-aria="aria.calculatorButtons">
             <button type="button" data-calc="clear">C</button>
-            <button type="button" data-calc="back" data-i18n="calculator.back">Back</button>
+            <button type="button" data-calc="back" aria-label="Back" data-i18n-aria="calculator.back">&#9003;</button>
             <button type="button" data-calc="percent">%</button>
             <button type="button" data-calc="divide">/</button>
             <button type="button" data-calc="7">7</button>

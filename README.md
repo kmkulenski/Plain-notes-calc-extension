@@ -10,6 +10,7 @@ Core features:
 - Falls back to a compact docked popup window on the right side of the current Chrome window when the Side Panel API is unavailable.
 - Uses Bulgarian as the default interface language and persists an optional English UI setting.
 - Supports up to 10 note tabs to keep local storage predictable.
+- Uses a thin horizontal tab strip above the editor to preserve writing space in the side panel.
 - Deletes tabs from a small per-tab x control without a confirmation popup.
 - Clears the active note immediately without a confirmation popup.
 - Uses a plain `<textarea>` editor with no rich text formatting and no syntax highlighting.
@@ -17,7 +18,7 @@ Core features:
 - Exports the active note as `.txt`, `.md`, `.js`, `.py`, or `.html`.
 - Imports text-like files into a new note tab when capacity allows.
 - Prints the active note through the standard Chrome/system print dialog.
-- Includes a small isolated calculator panel for quick arithmetic.
+- Includes a small isolated calculator panel for quick arithmetic, including keyboard and Numpad input.
 
 Tech stack:
 
@@ -74,7 +75,7 @@ Key files:
 
 - `manifest.json` defines the Manifest V3 extension, permissions, icons, and background service worker.
 - `background.js` handles the extension icon click, opens the right-side Chrome side panel, and falls back to a docked popup window when needed.
-- `app.html` contains the app shell, note editor, tab controls, import/export controls, and calculator markup.
+- `app.html` contains the app shell, horizontal note tabs, note editor, import/export controls, and calculator markup.
 - `app.css` contains all layout and visual styling.
 - `app.js` owns note state, auto-save, import/export, tab management, keyboard shortcuts, and calculator behavior.
 - `icons/icon.svg` is the source icon artwork.
@@ -92,6 +93,8 @@ Key files:
 - Do not mix calculator state into the note storage schema. The calculator is intentionally isolated UI state.
 - Keep state.language in the local storage schema; it controls only interface labels and must not transform user note content.
 - The per-tab x delete action and active-note clear action are intentionally immediate. Do not reintroduce browser confirmation popups unless the product decision changes.
+- Keep the note tabs horizontal and compact. The side panel is width-limited, so reintroducing a left tab column significantly reduces the editor area.
+- Calculator keyboard handling must not intercept typing while focus is inside note content, note title, selects, inputs, or contenteditable elements.
 - Printing intentionally uses `window.print()` and `@media print`. Do not add printer-driver integrations, native messaging, or printer permissions unless the project scope explicitly changes.
 - Do not silently remove the 10-tab cap. If more tabs are needed, review `chrome.storage.local` quota behavior and large-file performance first.
 - Do not replace export/download with direct file writes without documenting File System Access API permissions, persistence behavior, browser compatibility, and user prompts.
@@ -127,6 +130,7 @@ Manual test checklist:
 - Import a `.txt` or `.md` file and confirm it opens as a note tab.
 - Export notes as `.txt`, `.md`, `.js`, `.py`, and `.html`.
 - Toggle the calculator and test basic operations: add, subtract, multiply, divide, decimal input, clear, and backspace.
+- With the calculator open and focus outside the note editor/title, test keyboard and Numpad input: digits, operators, decimal, Enter, Backspace, Escape, and percent.
 - Reload the extension and confirm saved notes still load.
 
 Deployment:

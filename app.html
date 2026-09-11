@@ -36,27 +36,28 @@
       </header>
 
       <main class="workspace">
-        <aside class="tabs-pane" aria-label="Notes" data-i18n-aria="aria.notes">
-          <div class="tabs-header">
-            <span id="tabsCount">0/10</span>
-            <button type="button" class="icon-button small" id="addTabButton" title="New note tab" data-i18n-title="title.newTab">+</button>
+        <section class="notes-pane" aria-label="Notes" data-i18n-aria="aria.notes">
+          <div class="tabs-strip">
+            <div class="tabs-header">
+              <span id="tabsCount">0/10</span>
+              <button type="button" class="icon-button small" id="addTabButton" title="New note tab" data-i18n-title="title.newTab">+</button>
+            </div>
+
+            <div class="tabs-list" id="tabsList" role="tablist" aria-label="Note tabs" data-i18n-aria="aria.noteTabs"></div>
           </div>
 
-          <div class="tabs-list" id="tabsList" role="tablist" aria-label="Note tabs" data-i18n-aria="aria.noteTabs"></div>
-
-          <div class="tab-actions" aria-label="Tab actions" data-i18n-aria="aria.tabActions">
-            <button type="button" id="renameTabButton" title="Rename active tab" data-i18n="button.rename" data-i18n-title="title.rename">Rename</button>
-            <button type="button" id="duplicateTabButton" title="Duplicate active tab" data-i18n="button.copy" data-i18n-title="title.copy">Copy</button>
-            <button type="button" id="clearTabButton" title="Clear active note" data-i18n="button.clear" data-i18n-title="title.clear">Clear</button>
-          </div>
-        </aside>
-
-        <section class="editor-pane" aria-label="Active note" data-i18n-aria="aria.activeNote">
-          <div class="editor-header">
-            <input id="noteTitleInput" class="title-input" type="text" maxlength="80" autocomplete="off" spellcheck="false" aria-label="Note title" data-i18n-aria="aria.noteTitle">
-            <span id="noteMeta" class="note-meta">0 chars / 0 lines</span>
-          </div>
-          <textarea id="noteContentInput" class="note-content" spellcheck="false" aria-label="Note content" data-i18n-aria="aria.noteContent"></textarea>
+          <section class="editor-pane" aria-label="Active note" data-i18n-aria="aria.activeNote">
+            <div class="editor-header">
+              <input id="noteTitleInput" class="title-input" type="text" maxlength="80" autocomplete="off" spellcheck="false" aria-label="Note title" data-i18n-aria="aria.noteTitle">
+              <span id="noteMeta" class="note-meta">0 chars / 0 lines</span>
+              <div class="tab-actions" aria-label="Tab actions" data-i18n-aria="aria.tabActions">
+                <button type="button" id="renameTabButton" title="Rename active tab" data-i18n="button.rename" data-i18n-title="title.rename">Rename</button>
+                <button type="button" id="duplicateTabButton" title="Duplicate active tab" data-i18n="button.copy" data-i18n-title="title.copy">Copy</button>
+                <button type="button" id="clearTabButton" title="Clear active note" data-i18n="button.clear" data-i18n-title="title.clear">Clear</button>
+              </div>
+            </div>
+            <textarea id="noteContentInput" class="note-content" spellcheck="false" aria-label="Note content" data-i18n-aria="aria.noteContent"></textarea>
+          </section>
         </section>
 
         <aside class="calculator-pane is-hidden" id="calculatorPane" aria-label="Calculator" data-i18n-aria="aria.calculator">

@@ -754,6 +754,72 @@ function handleCalculatorAction(action) {
   }
 }
 
+function isTypingTarget(target) {
+  if (!target || typeof target.closest !== "function") {
+    return false;
+  }
+
+  if (target === dom.calculatorDisplay) {
+    return false;
+  }
+
+  return Boolean(target.closest("input, textarea, select, [contenteditable='true']"));
+}
+
+function isCalculatorOpen() {
+  return !dom.calculatorPane.classList.contains("is-hidden");
+}
+
+function calculatorActionFromKeyboard(event) {
+  if (/^\d$/.test(event.key)) {
+    return event.key;
+  }
+
+  if (/^Numpad\d$/.test(event.code)) {
+    return event.code.slice(-1);
+  }
+
+  const keyActions = {
+    "+": "add",
+    "-": "subtract",
+    "*": "multiply",
+    "/": "divide",
+    ".": "decimal",
+    ",": "decimal",
+    "=": "equals",
+    Enter: "equals",
+    Backspace: "back",
+    Escape: "clear",
+    "%": "percent"
+  };
+
+  const codeActions = {
+    NumpadAdd: "add",
+    NumpadSubtract: "subtract",
+    NumpadMultiply: "multiply",
+    NumpadDivide: "divide",
+    NumpadDecimal: "decimal",
+    NumpadEnter: "equals"
+  };
+
+  return codeActions[event.code] || keyActions[event.key] || null;
+}
+
+function handleCalculatorKeyboard(event) {
+  if (!isCalculatorOpen() || event.ctrlKey || event.altKey || event.metaKey || isTypingTarget(event.target)) {
+    return;
+  }
+
+  const action = calculatorActionFromKeyboard(event);
+
+  if (!action) {
+    return;
+  }
+
+  event.preventDefault();
+  handleCalculatorAction(action);
+}
+
 function handleKeyboardShortcuts(event) {
   if (!event.ctrlKey || event.shiftKey || event.altKey || event.metaKey) {
     return;
@@ -831,6 +897,7 @@ function bindEvents() {
   });
 
   document.addEventListener("keydown", handleKeyboardShortcuts);
+  document.addEventListener("keydown", handleCalculatorKeyboard);
   window.addEventListener("beforeprint", preparePrintDocument);
   window.addEventListener("afterprint", cleanupPrintDocument);
 }

@@ -116,6 +116,20 @@ async function openDockedWindow(tab) {
   }
 }
 
+async function closeSidePanelAPI(windowId) {
+  if (!chrome.sidePanel || typeof chrome.sidePanel.close !== "function") {
+    return false;
+  }
+
+  try {
+    const targetWindowId = windowId || (await chrome.windows.getLastFocused()).id;
+    await chrome.sidePanel.close({ windowId: targetWindowId });
+    return true;
+  } catch (_error) {
+    return false;
+  }
+}
+
 async function closeDockedWindow() {
   const existingWindowId = await getStoredWindowId();
 
@@ -131,6 +145,14 @@ async function closeDockedWindow() {
     await clearStoredWindowId();
     return false;
   }
+}
+
+async function closeNotesSurface() {
+  if (await closeSidePanelAPI()) {
+    return true;
+  }
+
+  return closeDockedWindow();
 }
 
 async function openNotesSurface(tab) {
@@ -150,7 +172,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     return false;
   }
 
-  closeDockedWindow().then((closed) => {
+  closeNotesSurface().then((closed) => {
     sendResponse({ closed });
   });
 

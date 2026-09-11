@@ -786,6 +786,10 @@ function calculatorActionFromKeyboard(event) {
     return event.code.slice(-1);
   }
 
+  if (event.key === "Delete") {
+    return "clear";
+  }
+
   const keyActions = {
     "+": "add",
     "-": "subtract",

@@ -134,7 +134,7 @@ Manual test checklist:
 - Import a `.txt` or `.md` file and confirm it opens as a note tab.
 - Export notes as `.txt`, `.md`, `.js`, `.py`, and `.html`.
 - Toggle the calculator and test basic operations: add, subtract, multiply, divide, decimal input, clear, and backspace.
-- With the calculator open and focus outside the note editor/title, test keyboard and Numpad input: digits, operators, decimal, Enter, Backspace, Escape, and percent.
+- With the calculator open and focus outside the note editor/title, test keyboard and Numpad input: digits, operators, decimal, Enter, Backspace, Delete, Escape, and percent.
 - Reload the extension and confirm saved notes still load.
 
 Deployment:

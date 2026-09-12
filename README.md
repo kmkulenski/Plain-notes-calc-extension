@@ -63,6 +63,8 @@ plain-tabs-notes-extension/
   app.html
   app.css
   app.js
+  print.html
+  print.js
   icons/
     icon.svg
     icon16.png
@@ -76,10 +78,11 @@ plain-tabs-notes-extension/
 Key files:
 
 - `manifest.json` defines the Manifest V3 extension, permissions, icons, and background service worker.
-- `background.js` handles the extension icon click, opens the right-side Chrome side panel, and falls back to a docked popup window when needed.
+- `background.js` handles the extension icon click, opens the right-side Chrome side panel, handles the fallback docked popup window, and opens print tabs on request.
 - `app.html` contains the app shell, horizontal note tabs, note editor, compact action menu, close panel control, import/export controls, and calculator markup.
 - `app.css` contains the minimal side-panel layout and visual styling.
 - `app.js` owns note state, auto-save, import/export, tab management, keyboard shortcuts, and calculator behavior.
+- `print.html` and `print.js` provide a dedicated printable browser tab so Chrome's Print Preview and system printers work reliably from the side panel.
 - `icons/icon.svg` is the source icon artwork.
 - `scripts/generate-icons.ps1` regenerates PNG icon sizes used by Chrome.
 
@@ -101,7 +104,7 @@ Key files:
 - Keep duplicate and clear inside the `tabActionsMenu` details menu unless the side panel layout is redesigned.
 - The header `×` control closes the side panel or fallback popup window. Note data is already auto-saved to `chrome.storage.local`, so closing is safe. Re-open by clicking the extension icon again.
 - Calculator keyboard handling must not intercept typing while focus is inside note content, note title, selects, inputs, or contenteditable elements.
-- Printing intentionally uses `window.print()` and `@media print`. Do not add printer-driver integrations, native messaging, or printer permissions unless the project scope explicitly changes.
+- Printing uses a dedicated print tab (`print.html` + `print.js`) because Chromium intentionally disables `window.print()` inside the side panel (`sidePanel` API). Do not revert printing to direct in-panel `window.print()`. Do not add printer-driver integrations, native messaging, or printer permissions.
 - Do not silently remove the 10-tab cap. If more tabs are needed, review `chrome.storage.local` quota behavior and large-file performance first.
 - Do not replace export/download with direct file writes without documenting File System Access API permissions, persistence behavior, browser compatibility, and user prompts.
 - Do not introduce external network calls, analytics, CDNs, remote fonts, or third-party scripts. The tool should work offline.
@@ -134,7 +137,7 @@ Manual test checklist:
 - Duplicate and clear note tabs through the `...` tab actions menu, and delete tabs with the small per-tab x control.
 - Click the header `×` control and confirm the side panel closes completely; click the extension icon again and confirm the panel reopens with all notes intact.
 - Confirm clearing a note does not open a browser confirmation popup.
-- Print the active note and confirm the preview contains only the note title and plain text content, not the full app interface.
+- Print the active note: click the print icon in the side panel toolbar and confirm a print tab opens, activates the native Chrome print dialog, and prints only the title and note body.
 - Import a `.txt` or `.md` file and confirm it opens as a note tab.
 - Export notes as `.txt`, `.md`, `.js`, `.py`, and `.html`.
 - Toggle the calculator and test basic operations: add, subtract, multiply, divide, decimal input, clear, and backspace.

@@ -1,4 +1,5 @@
 const STORAGE_KEY = "plainTabsNotesStateV1";
+const PRINT_JOB_KEY = "plainTabsNotesPrintJob";
 const MAX_TABS = 10;
 const SAVE_DELAY_MS = 180;
 const DEFAULT_LANGUAGE = "bg";
@@ -536,13 +537,47 @@ function preparePrintDocument() {
   dom.printDocument.setAttribute("aria-hidden", "false");
 }
 
-function printActiveTab() {
-  preparePrintDocument();
-  setStatus(translate("status.printReady"), 1800);
+async function printActiveTab() {
+  const tab = getActiveTab();
+  const printJob = {
+    title: tab.title || translate("defaultTitle"),
+    content: tab.content || "",
+    language: state.language || DEFAULT_LANGUAGE,
+    timestamp: Date.now()
+  };
 
-  requestAnimationFrame(() => {
-    window.print();
-  });
+  setStatus(translate("status.printReady"), 2000);
+
+  if (globalThis.chrome && chrome.storage && chrome.storage.local) {
+    try {
+      await chrome.storage.local.set({ [PRINT_JOB_KEY]: printJob });
+    } catch (error) {
+      console.warn("Could not save print job to storage", error);
+    }
+  }
+
+  const printUrl = globalThis.chrome && chrome.runtime && typeof chrome.runtime.getURL === "function"
+    ? chrome.runtime.getURL("print.html")
+    : "print.html";
+
+  if (globalThis.chrome && chrome.tabs && typeof chrome.tabs.create === "function") {
+    try {
+      await chrome.tabs.create({ url: printUrl });
+      return;
+    } catch (error) {
+      console.warn("chrome.tabs.create failed, falling back", error);
+    }
+  }
+
+  const opened = window.open(printUrl, "_blank");
+  if (!opened && globalThis.chrome && chrome.runtime && typeof chrome.runtime.sendMessage === "function") {
+    chrome.runtime.sendMessage({ type: "openPrintTab" }, (response) => {
+      if (chrome.runtime.lastError || !response || !response.opened) {
+        preparePrintDocument();
+        window.print();
+      }
+    });
+  }
 }
 
 function cleanupPrintDocument() {

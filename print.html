@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="bg">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Печат на бележка</title>
+    <style>
+      :root {
+        --bg: #f8fafc;
+        --surface: #ffffff;
+        --border: #cbd5e1;
+        --text: #0f172a;
+        --muted: #64748b;
+        --accent: #0f766e;
+        --accent-hover: #115e59;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      }
+
+      .print-toolbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 20px;
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      }
+
+      .print-info {
+        font-size: 13px;
+        color: var(--muted);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .print-info strong {
+        color: var(--text);
+      }
+
+      .print-actions {
+        display: flex;
+        gap: 8px;
+        flex-shrink: 0;
+      }
+
+      .btn {
+        appearance: none;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text);
+        border-radius: 6px;
+        padding: 6px 14px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.15s ease;
+      }
+
+      .btn:hover {
+        background: #f1f5f9;
+        border-color: #94a3b8;
+      }
+
+      .btn-primary {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #ffffff;
+      }
+
+      .btn-primary:hover {
+        background: var(--accent-hover);
+        border-color: var(--accent-hover);
+      }
+
+      .page-container {
+        max-width: 800px;
+        margin: 24px auto;
+        padding: 32px 40px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        min-height: 400px;
+      }
+
+      .document-title {
+        margin: 0 0 16px;
+        font-size: 20pt;
+        font-weight: 700;
+        line-height: 1.25;
+        color: #000000;
+        word-break: break-word;
+      }
+
+      .document-content {
+        margin: 0;
+        white-space: pre-wrap;
+        word-break: break-word;
+        font-family: "Consolas", "Courier New", monospace;
+        font-size: 11pt;
+        line-height: 1.5;
+        color: #000000;
+      }
+
+      @media print {
+        @page {
+          margin: 16mm;
+        }
+
+        body {
+          background: #ffffff !important;
+          color: #000000 !important;
+        }
+
+        .print-toolbar {
+          display: none !important;
+        }
+
+        .page-container {
+          max-width: none !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          border: none !important;
+          border-radius: 0 !important;
+          box-shadow: none !important;
+          min-height: 0 !important;
+        }
+
+        .document-title {
+          color: #000000 !important;
+        }
+
+        .document-content {
+          color: #000000 !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="print-toolbar">
+      <div class="print-info" id="toolbarInfo">
+        Печат на бележка: <strong id="infoTitle">...</strong>
+      </div>
+      <div class="print-actions">
+        <button type="button" class="btn btn-primary" id="printBtn">&#9113; Печат</button>
+        <button type="button" class="btn" id="closeBtn">&#215; Затвори</button>
+      </div>
+    </header>
+
+    <main class="page-container">
+      <h1 class="document-title" id="printTitle"></h1>
+      <pre class="document-content" id="printBody"></pre>
+    </main>
+
+    <script src="print.js"></script>
+  </body>
+</html>

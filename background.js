@@ -168,15 +168,29 @@ chrome.action.onClicked.addListener((tab) => {
 });
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-  if (!message || message.type !== "closeNotesWindow") {
+  if (!message) {
     return false;
   }
 
-  closeNotesSurface().then((closed) => {
-    sendResponse({ closed });
-  });
+  if (message.type === "closeNotesWindow") {
+    closeNotesSurface().then((closed) => {
+      sendResponse({ closed });
+    });
+    return true;
+  }
 
-  return true;
+  if (message.type === "openPrintTab") {
+    const printUrl = chrome.runtime.getURL("print.html");
+    chrome.tabs.create({ url: printUrl }).then((tab) => {
+      sendResponse({ opened: Boolean(tab && tab.id), tabId: tab ? tab.id : null });
+    }).catch((error) => {
+      console.warn("Failed to open print tab in background", error);
+      sendResponse({ opened: false, error: String(error) });
+    });
+    return true;
+  }
+
+  return false;
 });
 
 chrome.windows.onRemoved.addListener(async (windowId) => {
